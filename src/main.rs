@@ -1,12 +1,18 @@
-use iced::{Alignment, button, Button, Column, Element, Length, Row, Sandbox, Settings, Text};
+use rust_scrcpy_client::ui::constants;
+use chrono::Local;
+
+use iced::{Alignment, button, Button, Column, Element, Length, Row, Sandbox, Settings, Text, container};
+use iced::alignment::Horizontal;
 
 
 fn main() -> iced::Result {
-    Counter::run(Settings::default())
+    // run forever
+    Scrcpy::run(Settings::default())
 }
 
-struct Counter {
+struct Scrcpy {
     value: i32,
+    current_time: String,
     // The local state of the two buttons
     increment_button: button::State,
     decrement_button: button::State,
@@ -18,17 +24,19 @@ enum Message {
     DecrementPressed,
 }
 
-impl Sandbox for Counter {
+impl Sandbox for Scrcpy {
     type Message = Message;
-
     fn new() -> Self {
-        Self { value: 0, increment_button: Default::default(), decrement_button: Default::default() }
+        let fmt = "%Y-%m-%d %H:%M:%S";
+        let t = Local::now().format(fmt).to_string();
+        Self { value: 0, current_time: t, increment_button: Default::default(), decrement_button: Default::default() }
     }
-
+    // 标题栏
     fn title(&self) -> String {
-        String::from("Counter - Iced")
+        String::from(constants::APP_NAME)
     }
 
+    // 视图刷新
     fn update(&mut self, message: Message) {
         match message {
             Message::IncrementPressed => {
@@ -39,10 +47,10 @@ impl Sandbox for Counter {
             }
         }
     }
-
+    // 布局
     fn view(&mut self) -> Element<Message> {
         Column::new().push(
-            Text::new("Counter")
+            Text::new(&self.current_time).horizontal_alignment(Horizontal::Left)
         ).push(
             Row::new().push(
                 Button::new(&mut self.increment_button, Text::new("+"))
@@ -53,7 +61,7 @@ impl Sandbox for Counter {
                 Button::new(&mut self.decrement_button, Text::new("-"))
                     .on_press(Message::DecrementPressed).width(Length::Fill),
             )
-        )
-            .align_items(Alignment::Center).into()
+        ).into()
+        // .align_items(Alignment::Center).into()
     }
 }
