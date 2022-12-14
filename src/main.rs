@@ -1,13 +1,16 @@
-use std::{thread, time};
-use rust_scrcpy_client::ui::constants;
 use chrono::Local;
+use rust_scrcpy_client::ui::constants;
+use std::{thread, time};
 
 use iced::theme::{self, Theme};
-use iced::widget::{button, column, container, row, text, horizontal_space, checkbox};
+use iced::widget::{button, checkbox, column, container, horizontal_space, row, text};
 
-use iced::{alignment, Alignment, executor, Element, keyboard, Length, Sandbox, Settings, Subscription, window, Application, Command};
 use iced::alignment::{Horizontal, Vertical};
 use iced::application::StyleSheet;
+use iced::{
+    alignment, executor, keyboard, window, Alignment, Application, Command, Element, Length,
+    Sandbox, Settings, Subscription,
+};
 
 use iced_native::{event, subscription, Event, Renderer};
 
@@ -22,11 +25,9 @@ fn main() -> iced::Result {
     })
 }
 
-
 struct Scrcpy {
     current_time: String,
-    check_all: bool
-
+    check_all: bool,
 }
 
 // event signal
@@ -42,8 +43,6 @@ enum Message {
     Edit,
     Show,
 }
-
-
 
 impl Application for Scrcpy {
     type Executor = executor::Default;
@@ -73,25 +72,32 @@ impl Application for Scrcpy {
                 let fmt = "%Y-%m-%d %H:%M:%S";
                 self.current_time = Local::now().format(fmt).to_string();
             }
-            Message::UpdateTable => {
-
-            }
-            Message::Tick(now) => {
-
-            }
-            _ => {
-
-            }
+            Message::UpdateTable => {}
+            Message::Tick(now) => {}
+            _ => {}
         }
         Command::none()
     }
 
-    fn view(&self) -> Element<Message>  {
+    fn view(&self) -> Element<Message> {
         let fmt = "%Y-%m-%d %H:%M:%S";
-        let current_time = text( Local::now().format(fmt).to_string())
-            .size(20).horizontal_alignment(Horizontal::Left);
+        let current_time = text(Local::now().format(fmt).to_string())
+            .size(20)
+            .horizontal_alignment(Horizontal::Left);
 
-        let table_headers = row![text("id"), text("check"), text("SerialNum"), text("NickName"), text("RunMode"), text("Run"), text("Operate"), text("Other")].spacing(50).align_items(Alignment::Start).width(Length::Fill);
+        let table_headers = row![
+            text("id"),
+            text("check"),
+            text("SerialNum"),
+            text("NickName"),
+            text("RunMode"),
+            text("Run"),
+            text("Operate"),
+            text("Other")
+        ]
+        .spacing(50)
+        .align_items(Alignment::Start)
+        .width(Length::Fill);
 
         let check_box = checkbox(constants::CHECK_ALL, self.check_all, Message::CheckAll);
 
@@ -103,11 +109,12 @@ impl Application for Scrcpy {
             .style(theme::Button::Destructive)
             .on_press(Message::StopAll);
 
+        let controls = row![check_box, all_start_btn, all_stop_btn]
+            .spacing(20)
+            .align_items(Alignment::End)
+            .height(Length::Fill);
 
-        let controls = row![check_box, all_start_btn, all_stop_btn].spacing(20).align_items(Alignment::End).height(Length::Fill);
-
-        let content = column![current_time, table_headers, controls]
-            .spacing(20);
+        let content = column![current_time, table_headers, controls].spacing(20);
         // let content = container(
         //     column![
         //         row![
@@ -148,5 +155,4 @@ impl Application for Scrcpy {
     fn subscription(&self) -> Subscription<Message> {
         Subscription::none()
     }
-
 }
