@@ -18,7 +18,6 @@ use iced_native::{event, subscription, Event, Renderer};
 
 fn main() -> iced::Result {
     // run forever
-    list_devices();
     Scrcpy::run(Settings {
         window: window::Settings {
             size: (constants::WIDTH as u32, constants::HEIGHT as u32),
@@ -27,14 +26,43 @@ fn main() -> iced::Result {
         ..Settings::default()
     })
 }
+#[derive(Debug)]
+struct Device {
+    device: adbutils::device::AdbDevice,
+}
 
+enum DeviceMessage {
+    Select,
+    Run,
+    Edit,
+    EditTing,
+    Show,
+    Hide,
+}
+
+impl Device {
+    fn new(description: String) -> Self {
+        todo!()
+    }
+
+    fn update(&mut self, message: DeviceMessage) {}
+
+    fn view(&self, i: usize) -> Element<DeviceMessage> {
+        todo!()
+    }
+}
+
+#[derive(Debug)]
 struct Scrcpy {
     current_time: String,
     check_all: bool,
+    start_all: bool,
+    stop_all: bool,
+    devices: Vec<Device>,
 }
 
 // event signal
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 enum Message {
     UpdateTime,
     UpdateTable,
@@ -42,15 +70,21 @@ enum Message {
     StartALl,
     StopAll,
     CheckAll(bool),
-    Run,
-    Edit,
-    Show,
 }
 
-fn list_devices() {
-    let adb = adbutils::client::AdbClient::new(String::from("localhost"), 5037, time::Duration::new(10, 0));
+fn list_devices() -> Vec<Device> {
+    let adb = adbutils::client::AdbClient::new(
+        String::from("localhost"),
+        5037,
+        time::Duration::new(10, 0),
+    );
     // let client = adb._connect();
-    println!("adb version: {:?}", adb.server_version())
+    println!("adb version: {:?}", adb.server_version());
+    let mut devices = Vec::new();
+    for device in adb.devices_list() {
+        devices.push(Device { device })
+    }
+    return devices;
 }
 
 impl Application for Scrcpy {
@@ -64,6 +98,9 @@ impl Application for Scrcpy {
             Scrcpy {
                 current_time: "".to_string(),
                 check_all: false,
+                start_all: false,
+                stop_all: false,
+                devices: list_devices(),
             },
             Command::none(),
         )
@@ -124,35 +161,7 @@ impl Application for Scrcpy {
             .height(Length::Fill);
 
         let content = column![current_time, table_headers, controls].spacing(20);
-        // let content = container(
-        //     column![
-        //         row![
-        //             text("Top Left"),
-        //             horizontal_space(Length::Fill),
-        //             text("Top Right")
-        //         ]
-        //         .align_items(Alignment::Start)
-        //         .height(Length::Fill),
-        //         container(
-        //             button(text("Show Modal")).on_press(Message::StopAll)
-        //         )
-        //         .center_x()
-        //         .center_y()
-        //         .width(Length::Fill)
-        //         .height(Length::Fill),
-        //         row![
-        //             text("Bottom Left"),
-        //             horizontal_space(Length::Fill),
-        //             text("Bottom Right")
-        //         ]
-        //         .align_items(Alignment::End)
-        //         .height(Length::Fill),
-        //     ]
-        //         .height(Length::Fill),
-        // )
-        //     .padding(10)
-        //     .width(Length::Fill)
-        //     .height(Length::Fill);
+
         container(content)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -162,8 +171,6 @@ impl Application for Scrcpy {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        iced::time::every(std::time::Duration::new(1, 0)).map(|_| {
-            Message::UpdateTime
-        })
+        iced::time::every(std::time::Duration::new(1, 0)).map(|_| Message::UpdateTime)
     }
 }
