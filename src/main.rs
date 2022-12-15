@@ -1,7 +1,9 @@
+use adbutils;
 use chrono::Local;
 use rust_scrcpy_client::ui::constants;
 use std::{thread, time};
 
+use iced;
 use iced::theme::{self, Theme};
 use iced::widget::{button, checkbox, column, container, horizontal_space, row, text};
 
@@ -16,6 +18,7 @@ use iced_native::{event, subscription, Event, Renderer};
 
 fn main() -> iced::Result {
     // run forever
+    list_devices();
     Scrcpy::run(Settings {
         window: window::Settings {
             size: (constants::WIDTH as u32, constants::HEIGHT as u32),
@@ -42,6 +45,12 @@ enum Message {
     Run,
     Edit,
     Show,
+}
+
+fn list_devices() {
+    let adb = adbutils::client::AdbClient::new(String::from("localhost"), 5037, time::Duration::new(10, 0));
+    // let client = adb._connect();
+    println!("adb version: {:?}", adb.server_version())
 }
 
 impl Application for Scrcpy {
@@ -153,6 +162,8 @@ impl Application for Scrcpy {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        Subscription::none()
+        iced::time::every(std::time::Duration::new(1, 0)).map(|_| {
+            Message::UpdateTime
+        })
     }
 }

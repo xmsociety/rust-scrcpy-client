@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+adbutils="0.1.1"
 chrono = { version = "0.4", features = ["serde"] }
-iced="0.6"
+iced= { version= "0.6", features = ["smol"]} # for time::every
 iced_native="0.4.0"
