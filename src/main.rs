@@ -5,16 +5,13 @@ use std::{thread, time};
 
 use iced;
 use iced::theme::{self, Theme};
-use iced::widget::{button, checkbox, column, container, horizontal_space, row, text};
+use iced::widget::{button, checkbox, column, container, row, text};
 
 use iced::alignment::{Horizontal, Vertical};
 use iced::application::StyleSheet;
-use iced::{
-    alignment, executor, keyboard, window, Alignment, Application, Command, Element, Length,
-    Sandbox, Settings, Subscription,
-};
+use iced::{alignment, executor, keyboard, window, Alignment, Application, Command, Element, Length, Sandbox, Settings, Subscription, Padding};
 
-use iced_native::{event, subscription, Event, Renderer};
+use iced_native::{event, subscription, Event, Renderer, row, column};
 
 fn main() -> iced::Result {
     // run forever
@@ -120,6 +117,11 @@ impl Application for Scrcpy {
             }
             Message::UpdateTable => {}
             Message::Tick(now) => {}
+            Message::CheckAll(flag) => {
+                self.check_all = flag;
+                // TODO
+                println!("check all: {}", flag);
+            }
             _ => {}
         }
         Command::none()
@@ -148,11 +150,11 @@ impl Application for Scrcpy {
         let check_box = checkbox(constants::CHECK_ALL, self.check_all, Message::CheckAll);
 
         let all_start_btn = button(constants::ALL_START)
-            .style(theme::Button::Destructive)
+            .style(theme::Button::Primary)
             .on_press(Message::StartALl);
 
         let all_stop_btn = button(constants::ALL_STOP)
-            .style(theme::Button::Destructive)
+            .style(theme::Button::Primary)
             .on_press(Message::StopAll);
 
         let controls = row![check_box, all_start_btn, all_stop_btn]
@@ -167,6 +169,7 @@ impl Application for Scrcpy {
             .height(Length::Fill)
             .center_x()
             .align_x(Horizontal::Left)
+            .padding(Padding{top: 10, right: 0, bottom: 20, left: 10 })
             .into()
     }
 
